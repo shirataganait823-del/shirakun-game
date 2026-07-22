@@ -1,0 +1,366 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chapter III: Software - Educational Quest</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --accent-blue: #38bdf8;
+            --accent-green: #22c55e;
+            --accent-red: #ef4444;
+            --text-color: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .game-container {
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            max-width: 650px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            border: 1px solid #334155;
+        }
+
+        .header {
+            text-align: center;
+            border-bottom: 2px solid #334155;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 1.8rem;
+            color: var(--accent-blue);
+        }
+
+        .header p {
+            margin: 5px 0 0 0;
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.1rem;
+        }
+
+        .question-box {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .options-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .btn-option {
+            background-color: #334155;
+            color: var(--text-color);
+            border: 2px solid transparent;
+            padding: 14px 18px;
+            border-radius: 8px;
+            font-size: 1rem;
+            cursor: pointer;
+            text-align: left;
+            transition: all 0.2s ease;
+        }
+
+        .btn-option:hover:not([disabled]) {
+            background-color: #475569;
+            border-color: var(--accent-blue);
+        }
+
+        .btn-option.correct {
+            background-color: rgba(34, 197, 94, 0.2);
+            border-color: var(--accent-green);
+            color: var(--accent-green);
+        }
+
+        .btn-option.incorrect {
+            background-color: rgba(239, 68, 68, 0.2);
+            border-color: var(--accent-red);
+            color: var(--accent-red);
+        }
+
+        .feedback {
+            margin-top: 20px;
+            font-size: 1rem;
+            min-height: 50px;
+            padding: 10px;
+            border-radius: 6px;
+            background-color: #0f172a;
+            display: none;
+        }
+
+        .controls {
+            margin-top: 20px;
+            display: flex;
+            justify-content: flex-end;
+        }
+
+        .btn-next {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            display: none;
+        }
+
+        .btn-next:hover {
+            opacity: 0.9;
+        }
+
+        .results-screen {
+            text-align: center;
+        }
+
+        .results-screen h2 {
+            font-size: 2rem;
+            color: var(--accent-blue);
+        }
+
+        .score-display {
+            font-size: 3rem;
+            margin: 20px 0;
+            color: var(--accent-green);
+        }
+
+        .btn-restart {
+            background-color: var(--accent-blue);
+            color: #0f172a;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="header">
+        <h1>Software Knowledge Quest</h1>
+        <p>Master Chapter III: Software Concepts</p>
+    </div>
+
+    <div id="quiz-screen">
+        <div class="stats-bar">
+            <span id="question-count">Question 1/10</span>
+            <span id="score">Score: 0</span>
+        </div>
+
+        <div class="question-box" id="question-text">
+            Question text goes here...
+        </div>
+
+        <div class="options-grid" id="options-container">
+            <!-- Options dynamically loaded here -->
+        </div>
+
+        <div class="feedback" id="feedback-box"></div>
+
+        <div class="controls">
+            <button class="btn-next" id="next-btn" onclick="nextQuestion()">Next Question →</button>
+        </div>
+    </div>
+
+    <div id="results-screen" class="results-screen" style="display: none;">
+        <h2>Quest Complete!</h2>
+        <p>You have demonstrated your knowledge of Software Concepts.</p>
+        <div class="score-display" id="final-score">0/10</div>
+        <p id="performance-msg"></p>
+        <button class="btn-restart" onclick="restartQuiz()">Try Again</button>
+    </div>
+</div>
+
+<script>
+    const questions = [
+        {
+            question: "Which type of software manages computer hardware and provides a platform for running applications?",
+            options: ["Application Software", "System Software", "Specialized Software", "Enterprise Software"],
+            correct: 1,
+            explanation: "System software manages computer hardware and provides a platform for running application software."
+        },
+        {
+            question: "Which of the following is an example of an Operating System (OS)?",
+            options: ["Adobe Photoshop", "MySQL", "Linux", "MyFitnessPal"],
+            correct: 2,
+            explanation: "Linux (along with Windows, macOS, and Android) is an Operating System."
+        },
+        {
+            question: "What software converts high-level programming languages into machine-readable code?",
+            options: ["Device Drivers", "Firmware", "Language Processors", "DBMS"],
+            correct: 2,
+            explanation: "Language Processors convert high-level languages like Java, C++, and Python into machine code."
+        },
+        {
+            question: "Software embedded into hardware devices like washing machines or automotive systems is called:",
+            options: ["Embedded Systems", "Desktop Applications", "Cloud-Based Software", "Web Applications"],
+            correct: 0,
+            explanation: "Embedded systems software is integrated into hardware devices such as washing machines, medical devices, or cars."
+        },
+        {
+            question: "Which category includes software like Microsoft Word, Excel, and Adobe Photoshop?",
+            options: ["Firmware", "Desktop Applications", "Language Processors", "Device Drivers"],
+            correct: 1,
+            explanation: "Desktop Applications are programs installed on a computer for end-users, such as Word, Excel, or Photoshop."
+        },
+        {
+            question: "What type of software allows the Operating System to communicate with hardware like printers and graphics cards?",
+            options: ["Device Drivers", "AI Software", "Enterprise Software", "Simulation Software"],
+            correct: 0,
+            explanation: "Device Drivers allow the OS to communicate with hardware devices such as printers and scanners."
+        },
+        {
+            question: "Salesforce and SAP are examples of which type of software?",
+            options: ["Language Processors", "Enterprise Software", "Firmware", "Mobile Applications"],
+            correct: 1,
+            explanation: "Enterprise Software supports large organizations with operations like CRM or ERP (e.g., Salesforce, SAP)."
+        },
+        {
+            question: "Software used for storing, managing, and retrieving data (e.g., MySQL, Oracle) is known as:",
+            options: ["DBMS", "SaaS", "IDE", "OS"],
+            correct: 0,
+            explanation: "Database Management Systems (DBMS) are used for storing, managing, and retrieving data."
+        },
+        {
+            question: "Which of the following is NOT one of the specific objectives of regular software updating?",
+            options: [
+                "Improving system security by fixing vulnerabilities",
+                "Fixing bugs and errors that affect reliability",
+                "Increasing the physical weight of hardware components",
+                "Maintaining compatibility between OS, applications, and hardware"
+            ],
+            correct: 2,
+            explanation: "Software updates affect logic, security, and performance, but do not alter the physical weight of hardware."
+        },
+        {
+            question: "Embedded software that controls basic hardware functions, often found in routers or cameras, is called:",
+            options: ["Firmware", "Web Application", "AI Software", "Simulation Software"],
+            correct: 0,
+            explanation: "Firmware is embedded software that controls basic hardware functions in devices like routers or cameras."
+        }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+
+    function loadQuestion() {
+        const q = questions[currentQuestionIndex];
+        document.getElementById('question-count').innerText = `Question ${currentQuestionIndex + 1}/${questions.length}`;
+        document.getElementById('question-text').innerText = q.question;
+        
+        const optionsContainer = document.getElementById('options-container');
+        optionsContainer.innerHTML = '';
+
+        document.getElementById('feedback-box').style.display = 'none';
+        document.getElementById('next-btn').style.display = 'none';
+
+        q.options.forEach((optionText, index) => {
+            const btn = document.createElement('button');
+            btn.className = 'btn-option';
+            btn.innerText = optionText;
+            btn.onclick = () => selectOption(index);
+            optionsContainer.appendChild(btn);
+        });
+    }
+
+    function selectOption(selectedIndex) {
+        const q = questions[currentQuestionIndex];
+        const buttons = document.querySelectorAll('.btn-option');
+
+        buttons.forEach(btn => btn.disabled = true);
+
+        const feedbackBox = document.getElementById('feedback-box');
+        feedbackBox.style.display = 'block';
+
+        if (selectedIndex === q.correct) {
+            buttons[selectedIndex].classList.add('correct');
+            feedbackBox.style.color = 'var(--accent-green)';
+            feedbackBox.innerHTML = `<strong>Correct!</strong> ${q.explanation}`;
+            score++;
+            document.getElementById('score').innerText = `Score: ${score}`;
+        } else {
+            buttons[selectedIndex].classList.add('incorrect');
+            buttons[q.correct].classList.add('correct');
+            feedbackBox.style.color = 'var(--accent-red)';
+            feedbackBox.innerHTML = `<strong>Incorrect.</strong> ${q.explanation}`;
+        }
+
+        if (currentQuestionIndex < questions.length - 1) {
+            document.getElementById('next-btn').innerText = "Next Question →";
+        } else {
+            document.getElementById('next-btn').innerText = "See Results";
+        }
+        document.getElementById('next-btn').style.display = 'block';
+    }
+
+    function nextQuestion() {
+        currentQuestionIndex++;
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResults();
+        }
+    }
+
+    function showResults() {
+        document.getElementById('quiz-screen').style.display = 'none';
+        document.getElementById('results-screen').style.display = 'block';
+        document.getElementById('final-score').innerText = `${score} / ${questions.length}`;
+
+        const percentage = (score / questions.length) * 100;
+        let message = "";
+        if (percentage === 100) {
+            message = "Outstanding! You are a Software Concept Expert!";
+        } else if (percentage >= 70) {
+            message = "Great job! You have a solid understanding of software concepts.";
+        } else {
+            message = "Keep learning! Review Chapter III and try again.";
+        }
+        document.getElementById('performance-msg').innerText = message;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        score = 0;
+        document.getElementById('score').innerText = `Score: ${score}`;
+        document.getElementById('results-screen').style.display = 'none';
+        document.getElementById('quiz-screen').style.display = 'block';
+        loadQuestion();
+    }
+
+    // Initialize game on load
+    loadQuestion();
+</script>
+
+</body>
+</html>
